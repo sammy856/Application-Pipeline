@@ -52,23 +52,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
-      - name: Deploy on VM
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            sudo apt purge nginx nginx-common -y
-            sudo apt autoremove -y
-            sudo nginx -v
-            sudo apt update
-            sudo apt install nginx -y
-            sudo systemctl start nginx
-            sudo systemctl enable nginx
-            # sudo rm -rf /var/www/html/*
-            # sudo cp -r /tmp/streamflix/StreamFlix/* /var/www/html/
-            # sudo systemctl restart nginx  
+
 
       - name: Copy website to VM
         uses: appleboy/scp-action@v0.1.7
@@ -77,10 +61,26 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "StreamFlix/*"
-          target: "/var/www/html"
+          target: "/tmp/streamflix"
           strip_components: 1
 
 
-
+      - name: Deploy on VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # sudo apt purge nginx nginx-common -y
+            # sudo apt autoremove -y
+            # sudo nginx -v
+            # sudo apt update
+            # sudo apt install nginx -y
+            # sudo systemctl start nginx
+            # sudo systemctl enable nginx
+            sudo rm -rf /var/www/html/*
+            sudo cp -r /tmp/streamflix/StreamFlix/* /var/www/html/
+            sudo systemctl restart nginx  
             
 
