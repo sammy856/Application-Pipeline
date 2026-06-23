@@ -68,6 +68,9 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            sudo apt purge nginx nginx-common -y
+            sudo apt autoremove -y
+            sudo nginx -v
             sudo apt update
             sudo apt install nginx -y
             sudo systemctl start nginx
