@@ -1,0 +1,45 @@
+name: CI/CD Pipeline
+
+on: workflow_dispatch
+  # push:
+  #   branches:
+  #     - main
+
+permissions:
+  contents: read
+  id-token: write
+
+# env:
+#   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+#   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+#   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+#   ARM_USE_OIDC: true
+
+ 
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+
+      - name: install nginx
+        run: |
+          sudo apt update
+          sudo apt install nginx -y      
+
+      - name: start and enable nginx   
+        run: |
+          sudo systemctl start nginx
+          sudo systemctl enable nginx
+
+      - name: deploy to nginx
+        run: |
+          sudo rm -rf /var/www/html/*
+          sudo cp -r StreamFlix/* /var/www/html/
+
+      - name: Restart Nginx
+        run: sudo systemctl restart nginx     
+
+
+
