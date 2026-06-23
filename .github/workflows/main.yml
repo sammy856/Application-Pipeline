@@ -67,7 +67,8 @@ jobs:
             sudo systemctl start nginx
             sudo systemctl enable nginx
           source: "StreamFlix/*"
-          target: "/tmp/streamflix"
+          target: "/var/www/html"
+          strip_components: 1
 
       # - name: Deploy on VM
       #   uses: appleboy/ssh-action@v1.0.3
