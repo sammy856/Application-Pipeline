@@ -1,46 +1,79 @@
-name: CI/CD Pipeline
+# Deploy artifact in azure vm
+# we have configure agent in same vm
+# pipeline running in same vm
 
-on: workflow_dispatch
+# name: CI/CD Pipeline
+
+# on: workflow_dispatch
   # push:
   #   branches:
   #     - main
-
-permissions:
-  contents: read
-  id-token: write
-
-# env:
-#   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-#   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-#   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-#   ARM_USE_OIDC: true
-
  
+# jobs:
+#   deploy:
+#     runs-on: self-hosted
+#     steps:
+#       - name: checkout repo
+#         uses: actions/checkout@v4
+
+#       - name: install nginx
+#         run: |
+#           sudo apt update
+#           sudo apt install nginx -y      
+
+#       - name: start and enable nginx   
+#         run: |
+#           sudo systemctl start nginx
+#           sudo systemctl enable nginx
+
+#       - name: deploy to nginx
+#         run: |
+#           sudo rm -rf /var/www/html/*
+#           sudo cp -r StreamFlix/* /var/www/html/
+
+#       - name: Restart Nginx
+#         run: sudo systemctl restart nginx     
+
+
+##################################################################################
+# Deploye artifact in azure vm
+# runner- github hosted
+
+name: Deploy Website
+
+on:
+  workflow_dispatch:
+
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+
     steps:
-      - name: checkout repo
-        uses: actions/checkout@v4
-
-      - name: install nginx
-        run: |
-          sudo apt update
-          sudo apt install nginx -y      
-
-      - name: start and enable nginx   
-        run: |
-          sudo systemctl start nginx
-          sudo systemctl enable nginx
-
-      - name: deploy to nginx
-        run: |
-          sudo rm -rf /var/www/html/*
-          sudo cp -r StreamFlix/* /var/www/html/
-
-      - name: Restart Nginx
-        run: sudo systemctl restart nginx     
+      - uses: actions/checkout@v4
 
 
 
+      - name: Copy website to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "StreamFlix/*"
+          target: "/tmp/streamflix"
+
+      - name: Deploy on VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            sudo apt update
+            sudo apt install nginx -y
+            sudo systemctl start nginx
+            sudo systemctl enable nginx
+            sudo rm -rf /var/www/html/*
+            sudo cp -r /tmp/streamflix/* /var/www/html/
+            sudo systemctl restart nginx
 
