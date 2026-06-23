@@ -76,6 +76,6 @@ jobs:
             sudo systemctl start nginx
             sudo systemctl enable nginx
             sudo rm -rf /var/www/html/*
-            sudo cp -r /tmp/streamflix/* /var/www/html/
+            sudo cp -r /tmp/streamflix/StreamFlix/* /var/www/html/
             sudo systemctl restart nginx
 
